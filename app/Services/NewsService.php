@@ -10,7 +10,6 @@ class NewsService
 {
     public function fetchNewsFromAPI(): void
     {
-        echo "Im called";
         $newsSources = [
             'https://newsapi.org/v2/everything?domains=bbc.co.uk&sortBy=publishedAt&apiKey=' . env('NEWS_API_KEY'),
 //            'https://api.nytimes.com/svc/topstories/v2/home.json?api-key=' . env('NYTIMES_API_KEY'),
@@ -19,7 +18,6 @@ class NewsService
 
         foreach ($newsSources as $url) {
             $response = Http::get($url);
-            Log::info($response);
             if ($response->successful()) {
                 $this->storeArticles($response->json());
             }
@@ -33,6 +31,9 @@ class NewsService
         }
 
         foreach ($data['articles'] as $article) {
+            $publishedAt = isset($article['publishedAt'])
+                ? date('Y-m-d H:i:s', strtotime($article['publishedAt']))
+                : null;
             Article::updateOrCreate(
                 ['url' => $article['url']], // Prevent duplicate entries
                 [
@@ -41,7 +42,7 @@ class NewsService
                     'source' => $article['source']['name'] ?? 'Unknown',
                     'author' => $article['author'] ?? 'Unknown',
                     'urlToImage' => $article['urlToImage'] ?? null,
-                    'published_at' => $article['publishedAt'],
+                    'published_at' => $publishedAt,
                     'content' => $article['content'] ?? null, // Save full content if available
                 ]
             );
