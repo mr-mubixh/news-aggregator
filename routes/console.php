@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schedule;
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
-Schedule::call((new \App\Services\NewsService())->fetchNewsFromAPI())->hourly();
+Schedule::call([\App\Services\NewsService::class, 'fetchNewsFromAPI'])->hourly();
 Artisan::command('fetch-news', function () {
     (new \App\Services\NewsService())->fetchNewsFromAPI();
 })->purpose('Fetch News Articles');
