@@ -14,5 +14,4 @@ Artisan::command('fetch-news', function () {
     $newsService->fetchAllNews();
 
 })->purpose('Fetch News Articles');
-
-Schedule::call([\App\Services\NewsService::class, 'fetchAllNews'])->daily();
+Schedule::command('fetch-news')->daily();
