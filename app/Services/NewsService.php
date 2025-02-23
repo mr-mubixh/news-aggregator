@@ -32,9 +32,6 @@ class NewsService
         }
 
         foreach ($data['articles'] as $article) {
-            $publishedAt = isset($article['publishedAt'])
-                ? date('Y-m-d H:i:s', strtotime($article['publishedAt']))
-                : null;
             Article::updateOrCreate(
                 ['url' => $article['url']], // Prevent duplicate entries
                 [
