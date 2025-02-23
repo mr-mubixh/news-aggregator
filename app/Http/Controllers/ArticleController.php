@@ -10,6 +10,10 @@ class ArticleController extends Controller
     public function index(Request $request)
     {
         $query = Article::query();
+        if ($request->has('source_site')) {
+            $sourceSites = explode(',', $request->source_site); // Convert comma-separated values to array
+            $query->whereIn('source_site', $sourceSites);
+        }
 
         if ($request->has('search')) {
             $query->where('title', 'like', '%' . $request->search . '%');
