@@ -29,6 +29,7 @@ class NewsAPIService implements NewsFetcherInterface
                 'title' => $item['title'] ?? 'No Title',
                 'description' => $item['description'] ?? 'No Description',
                 'source' => $item['source']['name'] ?? 'Unknown',
+                'source_site' => 'news-api',
                 'author' => $item['author'] ?? 'Unknown',
                 'url' => $item['url'],
                 'urlToImage' => $item['urlToImage'] ?? null,

@@ -30,6 +30,7 @@ class GuardianAPIService implements NewsFetcherInterface
                 'title' => $item['webTitle'] ?? 'No Title',
                 'description' => $item['fields']['trailText'] ?? 'No Description',
                 'source' => 'The Guardian',
+                'source_site' => 'the-guardian',
                 'author' => 'Unknown', // Guardian API does not provide author name
                 'url' => $item['webUrl'],
                 'urlToImage' => $item['fields']['thumbnail'] ?? null, // Image field
