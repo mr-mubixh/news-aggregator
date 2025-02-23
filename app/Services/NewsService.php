@@ -8,13 +8,14 @@ use Illuminate\Support\Facades\Log;
 
 class NewsService
 {
+    private function formatDate($date)
+    {
+        return $date ? date('Y-m-d H:i:s', strtotime($date)) : now();
+    }
+
     public function fetchNewsFromAPI(): void
     {
-        $newsSources = [
-            'https://newsapi.org/v2/everything?domains=bbc.co.uk&sortBy=publishedAt&apiKey=' . env('NEWS_API_KEY'),
-//            'https://api.nytimes.com/svc/topstories/v2/home.json?api-key=' . env('NYTIMES_API_KEY'),
-//            'https://content.guardianapis.com/search?api-key=' . env('GUARDIAN_API_KEY')
-        ];
+        $newsSources = config('news.sources');
 
         foreach ($newsSources as $url) {
             $response = Http::get($url);
@@ -42,7 +43,7 @@ class NewsService
                     'source' => $article['source']['name'] ?? 'Unknown',
                     'author' => $article['author'] ?? 'Unknown',
                     'urlToImage' => $article['urlToImage'] ?? null,
-                    'published_at' => $publishedAt,
+                    'published_at' => $this->formatDate($article['publishedAt'] ?? null),
                     'content' => $article['content'] ?? null, // Save full content if available
                 ]
             );
