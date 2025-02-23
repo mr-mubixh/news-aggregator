@@ -17,8 +17,9 @@ class NewsService
     {
         $newsSources = config('news.sources');
 
-        foreach ($newsSources as $url) {
+        foreach ($newsSources as $key => $url) {
             $response = Http::get($url);
+            Log::info("Fetching news from $key: $response");
             if ($response->successful()) {
                 $this->storeArticles($response->json());
             }
