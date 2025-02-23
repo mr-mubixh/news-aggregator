@@ -2,47 +2,44 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Http;
 use App\Models\Article;
+use App\Services\News\NewsFetcherInterface;
 use Illuminate\Support\Facades\Log;
 
 class NewsService
 {
-    private function formatDate($date)
+    protected array $newsFetchers;
+
+    public function __construct(array $newsFetchers)
     {
-        return $date ? date('Y-m-d H:i:s', strtotime($date)) : now();
+        $this->newsFetchers = $newsFetchers;
     }
 
-    public function fetchNewsFromAPI(): void
+    public function fetchAllNews()
     {
-        $newsSources = config('news.sources');
-
-        foreach ($newsSources as $key => $url) {
-            $response = Http::get($url);
-            Log::info("Fetching news from $key: $response");
-            if ($response->successful()) {
-                $this->storeArticles($response->json());
-            }
+        foreach ($this->newsFetchers as $fetcher) {
+            $articles = $fetcher->fetchNews();
+            $this->storeArticles($articles);
         }
     }
 
-    private function storeArticles($data)
+    private function storeArticles(array $articles)
     {
-        if ($data['status'] !== 'ok' || empty($data['articles'])) {
-            return; // Ensure data is valid before processing
-        }
+        foreach ($articles as $article) {
+            $publishedAt = isset($article['publishedAt'])
+                ? date('Y-m-d H:i:s', strtotime($article['publishedAt']))
+                : now();
 
-        foreach ($data['articles'] as $article) {
             Article::updateOrCreate(
-                ['url' => $article['url']], // Prevent duplicate entries
+                ['url' => $article['url']],
                 [
-                    'title' => $article['title'],
-                    'description' => $article['description'] ?? null,
+                    'title' => $article['title'] ?? 'No Title',
+                    'description' => $article['description'] ?? 'No Description',
                     'source' => $article['source']['name'] ?? 'Unknown',
                     'author' => $article['author'] ?? 'Unknown',
                     'urlToImage' => $article['urlToImage'] ?? null,
-                    'published_at' => $this->formatDate($article['publishedAt'] ?? null),
-                    'content' => $article['content'] ?? null, // Save full content if available
+                    'published_at' => $publishedAt,
+                    'content' => $article['content'] ?? 'No Content',
                 ]
             );
         }
